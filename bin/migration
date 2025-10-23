@@ -1,0 +1,59 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+use Framework\Contracts\Console\Kernel;
+use Framework\Contracts\Core\Application;
+use Framework\Database\Migration\MigrationManager;
+
+// Console Kernel Application and handle the command...
+/** @var Kernel $kernel */
+$kernel = require_once __DIR__ . '/console.php';
+
+$kernel->handle(function (Application $app) {
+    global $argv;
+
+    $command = $argv[1] ?? 'help';
+    $manager = new MigrationManager(
+        $app->databasePath('database.sqlite'),
+        $app->databasePath('migrations'),
+    );
+
+    switch ($command) {
+        case 'create':
+            $name = $argv[2] ?? null;
+
+            if (!$name) {
+                echo "Usage: php migrations.php create <nom_de_la_migration>\n";
+                exit(1);
+            }
+
+            $manager->createMigration($name);
+            break;
+
+        case 'migrate':
+            $manager->migrate();
+            break;
+
+        case 'rollback':
+            $steps = (int)($argv[2] ?? 1);
+            $manager->rollback($steps);
+            break;
+
+        case 'status':
+            $manager->status();
+            break;
+
+        case 'help':
+        default:
+            echo "Commandes disponibles:\n";
+            echo "  create <nom>  - Créer une nouvelle migration\n";
+            echo "  migrate       - Exécuter toutes les migrations en attente\n";
+            echo "  rollback [n]  - Annuler les n dernières migrations (défaut: 1)\n";
+            echo "  status        - Afficher le statut des migrations\n";
+            break;
+    }
+
+    return 0;
+});

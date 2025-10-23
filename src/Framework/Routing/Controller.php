@@ -1,0 +1,63 @@
+<?php
+
+namespace Framework\Routing;
+
+use BadMethodCallException;
+use Framework\Routing\Utils\ControllerMiddlewareOptions;
+
+abstract class Controller
+{
+    /**
+     * The middleware registered on the controller.
+     *
+     * @var array
+     */
+    protected $middleware = [];
+
+    /**
+     * Register middleware on the controller.
+     *
+     * @param  \Closure|array|string  $middleware
+     * @param  array  $options
+     * @return \Framework\Routing\Utils\ControllerMiddlewareOptions
+     */
+    public function middleware($middleware, array $options = [])
+    {
+        foreach ((array) $middleware as $m) {
+            $this->middleware[] = [
+                'middleware' => $m,
+                'options' => &$options,
+            ];
+        }
+
+        return new ControllerMiddlewareOptions($options);
+    }
+
+    /**
+     * Get the middleware assigned to the controller.
+     *
+     * @return array
+     */
+    public function getMiddleware()
+    {
+        return $this->middleware;
+    }
+
+    /**
+     * Handle calls to missing methods on the controller.
+     *
+     * @param  string  $method
+     * @param  array  $parameters
+     * @return mixed
+     *
+     * @throws \BadMethodCallException
+     */
+    public function __call($method, $parameters)
+    {
+        throw new BadMethodCallException(sprintf(
+            'Method %s::%s does not exist.',
+            static::class,
+            $method
+        ));
+    }
+}

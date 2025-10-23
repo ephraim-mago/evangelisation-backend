@@ -1,0 +1,6 @@
+[
+  {
+    "type": "sqlite",
+    "path": "d:\\Web-Projects\\fullstack\\evangelisation-app\\backend\\database\\database.sqlite"
+  }
+]
